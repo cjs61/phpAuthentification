@@ -5,7 +5,10 @@ session_start();
 
 // je veux réccupérer le premier utilisateur
 require 'class/Database.php';
-$db = newDatabase('root', '','photo');
+$db = newDatabase('root', 'root','photo');
+$user = $db->query('SELECT * FROM users WHERE id = ?', [0])->fetch();
+debug($user);
+die();
 
 if(!empty($_POST)){
 	
