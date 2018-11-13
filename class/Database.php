@@ -11,10 +11,14 @@ class Database{
 
 
 
-  public function query($query, $params){
-    
-	$req = $this->pdo->prepare($query);
-	$req->execute($params);
+  public function query($query, $params = false){
+    if($params){
+      $req = $this->pdo->prepare($query);
+      $req->execute($params);
+    }else{
+      $req = $this->pdo->query($query);
+    }
+
 	return $req;
   }
 }

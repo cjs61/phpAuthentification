@@ -2,6 +2,11 @@
 require_once 'inc/functions.php';
 
 session_start();
+
+// je veux réccupérer le premier utilisateur
+require 'class/Database.php';
+$db = newDatabase('root', '','photo');
+
 if(!empty($_POST)){
 	
 	$errors = array();
