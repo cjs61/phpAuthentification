@@ -1,0 +1,8 @@
+{
+    "workbench.quickOpen.closeOnFocusLost": false,
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "workbench.editor.showTabs": true,
+    "window.autoDetectHighContrast": false,
+    "workbench.statusBar.feedback.visible": false
+}
