@@ -1,7 +1,6 @@
 <?php 
-require_once 'inc/functions.php';
+require_once 'inc/bootstrap.php';
 
-session_start();
 
 // je veux réccupérer le premier utilisateur
 require 'class/Database.php';
@@ -9,7 +8,7 @@ require 'class/App.php';
 $db = App::getDatabase();
 
 $user = $db->query('SELECT * FROM users')->fetchAll();
-debug($user);
+var_dump($user);
 die();
 
 if(!empty($_POST)){
