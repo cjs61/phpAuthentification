@@ -2,6 +2,16 @@
 require_once 'inc/functions.php';
 
 session_start();
+
+// je veux réccupérer le premier utilisateur
+require 'class/Database.php';
+require 'class/App.php';
+$db = App::getDatabase();
+
+$user = $db->query('SELECT * FROM users')->fetchAll();
+debug($user);
+die();
+
 if(!empty($_POST)){
 	
 	$errors = array();
