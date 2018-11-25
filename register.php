@@ -3,25 +3,26 @@ require_once 'inc/bootstrap.php';
 
 
 // je veux réccupérer le premier utilisateur
-require 'class/Database.php';
-require 'class/App.php';
-$db = App::getDatabase();
+// require 'class/Database.php';
+// require 'class/App.php';
+// $db = App::getDatabase();
 
-$user = $db->query('SELECT * FROM users')->fetchAll();
-var_dump($user);
-die();
+// $user = $db->query('SELECT * FROM users')->fetchAll();
+// var_dump($user);
+// die();
 
 if(!empty($_POST)){
 	
 	$errors = array();
-require_once 'inc/db.php';
+// require_once 'inc/db.php';
+$db = App::getDatabase();
 	
 	if(empty($_POST['username']) || !preg_match('/^[a-zA-Z0-9_]+$/', $_POST['username'])){
 		$errors['username'] = "Votre pseudo n'est pas valide (alphanumérique sans espace)";
 }else {
-	$req = $pdo->prepare('SELECT id FROM users WHERE username = ?');
-	$req->execute([$_POST['username']]);
-	$user = $req->fetch();
+	$user = $db->query('SELECT id FROM users WHERE username = ?', [$_POST['username']])->fetch();
+	// $req->execute([$_POST['username']]);
+	// $user = $req->fetch();
 	if ($user){
 		$errors['username'] = 'Ce pseudo est déjà pris';
 	}
@@ -31,9 +32,8 @@ require_once 'inc/db.php';
 	if(empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
 	$errors['email'] = "Votre email n'est pas valide";
 } else {
-	$req = $pdo->prepare('SELECT id FROM users WHERE email = ?');
-	$req->execute([$_POST['email']]);
-	$user = $req->fetch();
+	$user = $db->query('SELECT id FROM users WHERE email = ?', [$_POST['email']])->fetch();
+	
 	if ($user){
 		$errors['email'] = 'Cet email est déjà pris';
 	}
@@ -44,12 +44,19 @@ require_once 'inc/db.php';
 }
 	
 	if(empty($errors)){
+
+		$password = password_hash($_POST ['password'], PASSWORD_BCRYPT);
+		$token = str_random(60);
 	
-$req = $pdo->prepare("INSERT INTO users SET username = ?, password = ?, email = ?, confirmation_token = ?");
-$password = password_hash($_POST ['password'], PASSWORD_BCRYPT);
-$token = str_random(60);
-$req->execute([$_POST['username'], $password, $_POST['email'], $token]);
-$user_id = $pdo->LastInsertId();
+$db->query("INSERT INTO users SET username = ?, password = ?, email = ?, 
+confirmation_token = ?", 
+[$_POST['username'], 
+$password, 
+$_POST['email'], 
+$token
+]);
+
+$user_id = $db->LastInsertId();
 mail($_POST['email'], 'Confirmation de votre compte', "Afin de valider votre compte merci de cliquer sur ce lien\n\nhttp://localhost/site5_ok/confirm.php?id=$user_id&token=$token");
 $_SESSION['flash']['success'] = 'Un email de confirmation vous a été envoyé pour valider votre compte';
 header('location: login.php');
