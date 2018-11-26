@@ -30,26 +30,16 @@ $validator->isConfirmed('password', "Votre mot de passe n'est pas valide");
 	
 	
 	if($validator->isValid()){
+		
+		$auth = new Auth($db);
+		$auth->register($_POST['username'], $_POST['password'], $_POST['email']);
+		// $session = new Session();
+		Session::getInstance()->setFlash('success', 'Un email de confirmation vous a été envoyé pour valider votre compte');
+		App::redirect('login.php');
 
-		$password = password_hash($_POST ['password'], PASSWORD_BCRYPT);
-		$token = str_random(60);
-	
-$db->query("INSERT INTO users SET username = ?, password = ?, email = ?, 
-confirmation_token = ?", 
-[$_POST['username'], 
-$password, 
-$_POST['email'], 
-$token
-]);
-
-$user_id = $db->LastInsertId();
-mail($_POST['email'], 'Confirmation de votre compte', "Afin de valider votre compte merci de cliquer sur ce lien\n\nhttp://localhost/site5_ok/confirm.php?id=$user_id&token=$token");
-$_SESSION['flash']['success'] = 'Un email de confirmation vous a été envoyé pour valider votre compte';
-header('location: login.php');
-exit();
-}else{
-	$errors = $validator->getErrors();
-}
+	}else{
+		$errors = $validator->getErrors();
+	}
 	
 
 }

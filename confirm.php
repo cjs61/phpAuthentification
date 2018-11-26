@@ -4,11 +4,9 @@ $user_id = $_GET['id'];
 
 $token = $_GET['token'];
 
-require 'inc/db.php';
+$db = App::getDatabase();
 
-$req = $pdo->prepare('SELECT * FROM users WHERE id = ?');
-$req->execute([$user_id]);
-$user = $req->fetch();
+$user = $db->query('SELECT * FROM users WHERE id = ?', )->fetch([$user_id]);
 
 session_start();
 

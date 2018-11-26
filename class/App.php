@@ -1,14 +1,19 @@
 <?php
 // cette classe contient tout ce qui est générique dans mon application
-// Le but est de créer une fonction static pour l'accès à la bdd
+// Le but est de créer une fonction static pour l'accès à la bdd...
 class App{
 
-static $db = null;
+  static $db = null;
 
   static function getDatabase(){
     if(!self::$db){
       self::$db = new Database('root', '', 'photo');
     }
     return self::$db;
+  }
+
+  static function redirect($page){
+    header ("location: $page.php");
+    exit();
   }
 }
