@@ -3,47 +3,33 @@ require_once 'inc/bootstrap.php';
 
 
 // je veux réccupérer le premier utilisateur
-// require 'class/Database.php';
-// require 'class/App.php';
-// $db = App::getDatabase();
 
-// $user = $db->query('SELECT * FROM users')->fetchAll();
-// var_dump($user);
-// die();
 
 if(!empty($_POST)){
 	
 	$errors = array();
-// require_once 'inc/db.php';
+
 $db = App::getDatabase();
-	
-	if(empty($_POST['username']) || !preg_match('/^[a-zA-Z0-9_]+$/', $_POST['username'])){
-		$errors['username'] = "Votre pseudo n'est pas valide (alphanumérique sans espace)";
-}else {
-	$user = $db->query('SELECT id FROM users WHERE username = ?', [$_POST['username']])->fetch();
-	// $req->execute([$_POST['username']]);
-	// $user = $req->fetch();
-	if ($user){
-		$errors['username'] = 'Ce pseudo est déjà pris';
+$validator = new Validator($_POST);
+$validator->isAlpha('username', "Votre pseudo n'est pas valide (alphanumérique sans espace)");
+	if($validator->isValid()){
+		$validator->isUnique('username', $db, 'users', 'Ce pseudo est déjà pris');
 	}
+$validator->isEmail('email', "Votre email n'est pas valide");
+	if($validator->isValid()){
+		$validator->isUnique('email', $db, 'users', 'Cet email est déjà pris');
+	}	
+$validator->isConfirmed('password', "Votre mot de passe n'est pas valide");
+
+
+// echo '<pre>';
+// var_dump($validator);
+// var_dump($validator->isValid());
+// die();
 	
-}
-		
-	if(empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
-	$errors['email'] = "Votre email n'est pas valide";
-} else {
-	$user = $db->query('SELECT id FROM users WHERE email = ?', [$_POST['email']])->fetch();
 	
-	if ($user){
-		$errors['email'] = 'Cet email est déjà pris';
-	}
-}
 	
-	if(empty($_POST['password']) || $_POST['password'] != $_POST['password_confirm']){
-	$errors['password'] = "Votre mot de passe n'est pas valide";
-}
-	
-	if(empty($errors)){
+	if($validator->isValid()){
 
 		$password = password_hash($_POST ['password'], PASSWORD_BCRYPT);
 		$token = str_random(60);
@@ -61,6 +47,8 @@ mail($_POST['email'], 'Confirmation de votre compte', "Afin de valider votre com
 $_SESSION['flash']['success'] = 'Un email de confirmation vous a été envoyé pour valider votre compte';
 header('location: login.php');
 exit();
+}else{
+	$errors = $validator->getErrors();
 }
 	
 
