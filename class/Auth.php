@@ -116,4 +116,17 @@ class Auth{
         setcookie('remember', NULL, -1);
         $this->session->delete('auth');
     }
+
+    public function resetPassword($db, $email){
+        $user = $db->query('SELECT * FROM users WHERE email = ? AND confirmed_at IS NOT NULL', [$email])->fetch();
+	
+	    if($user){
+            $reset_token = Str::random(60);
+            $db->query('UPDATE users SET reset_token = ?, reset_at = NOW() WHERE id = ?', [$reset_token, $user->id]);
+            
+            mail($_POST['email'], 'Réinitialisation de votre mot de passe', "Afin de réinitialiser votre mot de passe merci de cliquer sur ce lien\n\nhttp://localhost/site5_ok/reset.php?id={$user->id}&token=$reset_token");
+            return $user;
+        }
+        return false;
+    }
 }
