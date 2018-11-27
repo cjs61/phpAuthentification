@@ -1,9 +1,14 @@
 <?php 
 require 'inc/bootstrap.php';
 // logged_only();
+// $auth = new Auth(['restriction_msg' => 'lol tu es bloqué !']); mais il faut pensé à passer tous les paramètres
+// le design Pater App s'appel un factory, c'est ici une classe qui ne se charge que d'initialiser les autres classes de façon plus simple (avec moins de paramètres, permet d'initialiser les classes avec leur différentes propriétés, il s'agit bien sûre des propriétés du constructeur ) c'est notamment utile quand j'initialise une classe plusieurs fois
 
-$auth = new Auth();
-$auth->restrict(Session::getInstance());
+// $auth = App::getAuth();
+// $auth->restrict(Session::getInstance());
+// $auth->restrict();
+
+App::getAuth()->restrict();
 if(!empty($_POST)){
 
   if(empty($_POST['password']) || $_POST['password'] != $_POST['password_confirm']){
