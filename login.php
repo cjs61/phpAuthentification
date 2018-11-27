@@ -1,28 +1,24 @@
 <?php 
 require 'inc/bootstrap.php';
-// require_once 'inc/functions.php';
-// reconnect_from_cookie();
+
 
 $auth = App::getAuth();
 // j'ai besoin de l'accès à la bdd dans la fonction connectFromCookie
 $db = App::getDatabase();
 $auth->connectFromCookie($db);
-// if(isset($_SESSION['auth'])){
-// 	header('location: account.php');
-// 	exit();
-// }
 
-// ($auth->user()) signifie que l'utilisateur est connecté
 
 if($auth->user()){
 	App::redirect('account.php');
 }
 if(!empty($_POST) && !empty($_POST['username']) && !empty($_POST['password'])){
 	$user = $auth->login($db, $_POST['username'], $_POST['password'], isset($_POST['remember']));
+	$session = Session::getInstance();
 	if($user){
-		$_SESSION['flash']['success'] = 'Vous êtes maintenant connecté';
-		header('Location: account.php');
-        exit();
+		$session->setFlash('success', 'Vous êtes maintenant connecté');
+		App::redirect('account.php');
+	}else{
+		$session->setFlash('danger', 'Identifiant ou mot de passe incorrect');
 	}
 
 }

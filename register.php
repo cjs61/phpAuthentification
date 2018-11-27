@@ -21,11 +21,6 @@ $validator->isEmail('email', "Votre email n'est pas valide");
 	}	
 $validator->isConfirmed('password', "Votre mot de passe n'est pas valide");
 
-
-// echo '<pre>';
-// var_dump($validator);
-// var_dump($validator->isValid());
-// die();
 	
 	
 	
@@ -33,7 +28,7 @@ $validator->isConfirmed('password', "Votre mot de passe n'est pas valide");
 		
 		
 		App::getAuth()->register($db, $_POST['username'], $_POST['password'], $_POST['email']);
-		// $session = new Session();
+		
 		Session::getInstance()->setFlash('success', 'Un email de confirmation vous a été envoyé pour valider votre compte');
 		App::redirect('login.php');
 

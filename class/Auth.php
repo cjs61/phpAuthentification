@@ -2,12 +2,12 @@
 
 class Auth{
 
-    private $session;
+    
 
     private $options = [
         'restriction_msg' => "Vous n'avez pas le droit d'accèder à cette page"
     ];
-
+    private $session;
 
     public function __construct($session, $options = [])
     {
@@ -17,7 +17,7 @@ class Auth{
 
     public function register($db, $username, $password, $email){
         $password = password_hash($password, PASSWORD_BCRYPT);
-        $token = str::random(60);
+        $token = Str::random(60);
 	    $db->query("INSERT INTO users SET username = ?, password = ?, email = ?, 
             confirmation_token = ?", [
             $username, 
@@ -66,12 +66,9 @@ class Auth{
 
     public function connectFromCookie($db){
 
-        // if (isset($_COOKIE['remember']) && !isset($_SESSION['auth'])) {
+        
         if (isset($_COOKIE['remember']) && !$this->user()) {
-            // require_once 'db.php';
-            // if (!isset($pdo)) {
-            //     global $pdo;
-            // }
+
     
             $remember_token = $_COOKIE['remember'];
             $parts = explode('==', $remember_token);
@@ -80,9 +77,9 @@ class Auth{
             if ($user) {
                 $expected = $user_id . '==' . $user->remember_token . sha1($user_id . 'tetedeslip');
                 if ($expected == $remember_token) {
-                    // session_start();
+                    
                     $this->connect($user);
-                    // $_SESSION['auth'] = $user;
+                    
                     setcookie('remember', $remember_token, time() + 60 * 60 * 24 * 31);
                 } else {
                     setcookie('remember', null, -1);
@@ -95,25 +92,23 @@ class Auth{
 
     public function login($db, $username, $password, $remember = false) {
         $user = $db -> query('SELECT * FROM users WHERE (username = :username OR email = :username) AND confirmed_at IS NOT NULL', ['username' => $username])->fetch();
-        if (password_verify($_POST['password'], $user -> password)) {
-            // $_SESSION['auth'] = $user;
+        if (password_verify($password, $user -> password)) {
+           
             $this->connect($user);
-            // ce messages flash n'est plus ici
-            // $_SESSION['flash']['success'] = 'Vous êtes maintenant connecté';
+            
             if($remember){
                 $this->remember($db, $user->id);
             }
-            header('Location: account.php');
-            exit();
+            return $user;
         } else {
-        $_SESSION['flash']['danger'] = 'Identifiant ou mot de passe incorrect';
+        return false;
         }
     }
 
     public function remember($db, $user_id){
-        // if ($_POST['remember']) {
+        
         if($remember){ 
-            // $remember_token = str_random(250); car j'ai créé une fonction statique
+            
             $remember_token = Str::random();
             $db -> query('UPDATE users SET remember_token = ? WHERE id = ?', [$remember_token, $user_id]);
             setcookie('remember', $user_id.'=='.$remember_token.sha1($user_id .'tetedeslip'), time() + 60 * 60 * 24 * 15);
