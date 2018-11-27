@@ -106,12 +106,14 @@ class Auth{
     }
 
     public function remember($db, $user_id){
-        
-        if($remember){ 
-            
-            $remember_token = Str::random();
-            $db -> query('UPDATE users SET remember_token = ? WHERE id = ?', [$remember_token, $user_id]);
-            setcookie('remember', $user_id.'=='.$remember_token.sha1($user_id .'tetedeslip'), time() + 60 * 60 * 24 * 15);
-        }
+        $remember_token = Str::random(250);
+        $db -> query('UPDATE users SET remember_token = ? WHERE id = ?', [$remember_token, $user_id]);
+        setcookie('remember', $user_id.'=='.$remember_token.sha1($user_id .'tetedeslip'), time() + 60 * 60 * 24 * 15);
+
+    }
+
+    public function logout(){
+        setcookie('remember', NULL, -1);
+        $this->session->delete('auth');
     }
 }
