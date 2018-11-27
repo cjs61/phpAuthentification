@@ -2,17 +2,20 @@
 
 class Auth{
 
-    private $db;
+    private $options = [
+        'restriction_msg' => "Vous n'avez pas le droit d'accèder à cette page"
+    ];
 
-    public function __construct($db)
+
+    public function __construct($options = [])
     {
-        $this->db = $db;
+        $this->options = array_merge($this->options, $options);
     }
 
-    public function register($username, $password, $email){
+    public function register($db, $username, $password, $email){
         $password = password_hash($password, PASSWORD_BCRYPT);
         $token = str::random(60);
-	    $this->db->query("INSERT INTO users SET username = ?, password = ?, email = ?, 
+	    $db->query("INSERT INTO users SET username = ?, password = ?, email = ?, 
             confirmation_token = ?", [
             $username, 
             $password, 
@@ -25,17 +28,25 @@ class Auth{
 
     }
     
-    public function confirm($user_id, $token, $session){
-        $user = $this->db->query('SELECT * FROM users WHERE id = ?', [$user_id])->fetch();
+    public function confirm($db, $user_id, $token, $session){
+        $user = $db->query('SELECT * FROM users WHERE id = ?', [$user_id])->fetch();
 
 
         if($user && $user->confirmation_token == $token){
 	
-            $this->db->query('UPDATE users SET confirmation_token = NULL, confirmed_at = NOW() WHERE id = ?', [$user_id]);
+            $db->query('UPDATE users SET confirmation_token = NULL, confirmed_at = NOW() WHERE id = ?', [$user_id]);
             $session->write('auth', $user);
             return true;
         } else {
 	        return false;
         }   
+    }
+
+    public function restrict($session){
+        if (!$session->read('auth')) {
+            $session->setFlash('danger', $this->options['restriction_msg']);
+            header('Location: login.php');
+            exit();
+        }
     }
 }
