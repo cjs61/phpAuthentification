@@ -15,8 +15,12 @@ class Auth{
         $this->session = $session;
     }
 
+    public function hashPassword($password){
+        return password_hash($password, PASSWORD_BCRYPT);
+    }
+
     public function register($db, $username, $password, $email){
-        $password = password_hash($password, PASSWORD_BCRYPT);
+        $password = $this->hashPassword($password);
         $token = Str::random(60);
 	    $db->query("INSERT INTO users SET username = ?, password = ?, email = ?, 
             confirmation_token = ?", [
@@ -128,5 +132,10 @@ class Auth{
             return $user;
         }
         return false;
+    }
+
+    public function checkResetToken($db, $user_id, $token){
+        return $db->query('SELECT * FROM users WHERE id = ? AND reset_token IS NOT NULL AND reset_token = ? AND reset_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)', [$user_id, $token])->fetch();
+
     }
 }
